@@ -21,12 +21,14 @@ function calculateStatistics(timers) {
   const averageTime = Number(timers.reduce((acc, timer) => acc + timer, 0n)) / totalFiles || 0;
   const averageTimeLast100 = Number(last100Files.reduce((acc, timer) => acc + timer, 0n)) / last100Files.length || 0;
   const averageTimeLast1000 = Number(last1000Files.reduce((acc, timer) => acc + timer, 0n)) / last1000Files.length || 0;
+  const last100 = timers.slice(-100).map((timer) => Number(timer));
 
   return {
     averageTime,
     averageTimeLast100,
     averageTimeLast1000,
     totalFiles,
+    last100,
   };
 }
 
