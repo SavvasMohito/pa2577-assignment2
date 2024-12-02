@@ -3,6 +3,7 @@ const formidable = require("formidable");
 const fs = require("fs/promises");
 const app = express();
 const PORT = 3000;
+const path = require("path");
 
 const Timer = require("./Timer");
 const CloneDetector = require("./CloneDetector");
@@ -44,6 +45,17 @@ function fileReceiver(req, res, next) {
 }
 
 app.get("/", viewClones);
+
+// Add /timers route to display statistics
+app.get("/timers", (req, res) => {
+  const stats_total = calculateStatistics(timers_total);
+  const stats_match = calculateStatistics(timers_match);
+  res.render("timers", { stats_total, stats_match });
+});
+
+// Set the view engine to EJS
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "./views"));
 
 const server = app.listen(PORT, () => {
   console.log("Listening for files on port", PORT);

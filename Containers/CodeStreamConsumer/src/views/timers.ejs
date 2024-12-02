@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Timers Statistics</title>
+</head>
+
+<body>
+	<h1>Timers Statistics</h1>
+	<p>Total Files: <%= stats_total.totalFiles %>
+	</p>
+	<h2>Total time timers</h2>
+	<p>Average Time per File: <%= (stats_total.averageTime / 1000).toFixed(2) %> µs</p>
+	<p>Average Time per Last 100 Files: <%= (stats_total.averageTimeLast100 / 1000).toFixed(2) %> ms</p>
+	<p>Average Time per Last 1000 Files: <%= (stats_total.averageTimeLast1000 / 1000).toFixed(2) %> ms</p>
+
+	<h2>Match time timers</h2>
+	<p>Average Time per File: <%= (stats_match.averageTime / 1000).toFixed(2) %> µs</p>
+	<p>Average Time per Last 100 Files: <%= (stats_match.averageTimeLast100 / 1000).toFixed(2) %> ms</p>
+	<p>Average Time per Last 1000 Files: <%= (stats_match.averageTimeLast1000 / 1000).toFixed(2) %> ms</p>
+	<!-- Add a graph here using a library like Chart.js -->
+</body>
+
+</html>
