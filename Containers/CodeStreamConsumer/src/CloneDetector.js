@@ -94,8 +94,22 @@ class CloneDetector {
     // Return: file, including file.instances which is an array of Clone objects (or an empty array).
     //
 
+    // Ensure file.instances is initialized
     file.instances = file.instances || [];
+
+    // For each chunk in file.chunks, find all matching chunks in compareFile.chunks
+    const newInstances = file.chunks
+      .map((chunk) => {
+        return compareFile.chunks
+          .filter((compareChunk) => chunkMatch(chunk, compareChunk))
+          .map((matchingChunk) => new Clone(chunk, matchingChunk));
+      })
+      .flat();
+
+    // Append the new instances to file.instances
     file.instances = file.instances.concat(newInstances);
+
+    // Return the file with updated instances
     return file;
   }
 
