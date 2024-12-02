@@ -162,6 +162,21 @@ class CloneDetector {
     // Return: file, with file.instances containing unique Clone objects that may contain several targets
     //
 
+    file.instances = file.instances.reduce((accumulator, currentClone) => {
+      // Check if the current clone is already in the accumulator
+      const existingClone = accumulator.find((clone) => clone.equals(currentClone));
+
+      if (existingClone) {
+        // If it is, update the existing clone to include this one
+        existingClone.addTarget(currentClone);
+      } else {
+        // If it isn't, add the current clone to the accumulator
+        accumulator.push(currentClone);
+      }
+
+      return accumulator;
+    }, []);
+
     return file;
   }
 
