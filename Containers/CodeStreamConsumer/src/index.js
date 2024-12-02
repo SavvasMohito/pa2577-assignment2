@@ -9,6 +9,26 @@ const CloneDetector = require("./CloneDetector");
 const CloneStorage = require("./CloneStorage");
 const FileStorage = require("./FileStorage");
 
+let timers_total = [];
+let timers_match = [];
+
+function calculateStatistics(timers) {
+  const totalFiles = timers.length;
+  const last100Files = timers.slice(-100);
+  const last1000Files = timers.slice(-1000);
+
+  const averageTime = Number(timers.reduce((acc, timer) => acc + timer, 0n)) / totalFiles || 0;
+  const averageTimeLast100 = Number(last100Files.reduce((acc, timer) => acc + timer, 0n)) / last100Files.length || 0;
+  const averageTimeLast1000 = Number(last1000Files.reduce((acc, timer) => acc + timer, 0n)) / last1000Files.length || 0;
+
+  return {
+    averageTime,
+    averageTimeLast100,
+    averageTimeLast1000,
+    totalFiles,
+  };
+}
+
 // Express and Formidable stuff to receice a file for further processing
 // --------------------
 const form = formidable({ multiples: false });
@@ -142,7 +162,12 @@ function processFile(filename, contents) {
       .then((file) => Timer.endTimer(file, "match"))
 
       .then((file) => cd.storeFile(file))
-      .then((file) => Timer.endTimer(file, "total"))
+      .then((file) => {
+        const timer = Timer.endTimer(file, "total");
+        timers_total.push(timer.timers["total"]);
+        timers_match.push(timer.timers["match"]);
+        return file;
+      })
       .then(PASS((file) => (lastFile = file)))
       .then(PASS((file) => maybePrintStatistics(file, cd, cloneStore)))
       // TODO Store the timers from every file (or every 10th file), create a new landing page /timers
