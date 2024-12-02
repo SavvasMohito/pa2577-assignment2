@@ -101,7 +101,7 @@ class CloneDetector {
     const newInstances = file.chunks
       .map((chunk) => {
         return compareFile.chunks
-          .filter((compareChunk) => chunkMatch(chunk, compareChunk))
+          .filter((compareChunk) => this.#chunkMatch(chunk, compareChunk))
           .map((matchingChunk) => new Clone(chunk, matchingChunk));
       })
       .flat();
