@@ -128,6 +128,23 @@ class CloneDetector {
     //         and not any of the Clones used during that expansion.
     //
 
+    file.instances = file.instances.reduce((accumulator, currentClone) => {
+      let expanded = false;
+
+      for (let i = 0; i < accumulator.length; i++) {
+        if (accumulator[i].maybeExpandWith(currentClone)) {
+          expanded = true;
+          break;
+        }
+      }
+
+      if (!expanded) {
+        accumulator.push(currentClone);
+      }
+
+      return accumulator;
+    }, []);
+
     return file;
   }
 
