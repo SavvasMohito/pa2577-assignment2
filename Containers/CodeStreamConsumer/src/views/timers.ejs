@@ -4,48 +4,151 @@
 <head>
 	<title>Timers Statistics</title>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			background-color: #f4f4f4;
+		}
+
+		.container {
+			width: 1000px;
+			margin: 0 auto;
+			padding: 20px 40px 10px 40px;
+			background-color: #fff;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+			border-radius: 8px;
+			margin-top: 20px;
+			margin-bottom: 20px;
+		}
+
+		h1,
+		h2 {
+			color: #333;
+		}
+
+		p {
+			color: #666;
+		}
+
+		table {
+			width: 600px;
+			border-collapse: collapse;
+			margin: 20px 0;
+		}
+
+		table,
+		th,
+		td {
+			border: 1px solid #ddd;
+		}
+
+		th,
+		td {
+			padding: 8px;
+			text-align: left;
+		}
+
+		th {
+			background-color: #f2f2f2;
+		}
+
+		tr:nth-child(even) {
+			background-color: #f9f9f9;
+		}
+
+		.chart-container {
+			width: 800px;
+			margin: 20px 0;
+			height: 400px;
+			text-align: center;
+			padding-bottom: 50px;
+		}
+
+		.chart-container p {
+			margin-top: 10px;
+		}
+	</style>
 </head>
 
 <body>
-	<h1>Timers Statistics</h1>
-	<p>Total Files: <%= stats_total.totalFiles %>
-	</p>
-	<h2>Total processing time</h2>
-	<p>Average Time per File: <%= (stats_total.averageTime / 1000).toFixed(2) %> µs</p>
-	<p>Average Time per Last 100 Files: <%= (stats_total.averageTimeLast100 / 1000).toFixed(2) %> µs</p>
-	<p>Average Time per Last 1000 Files: <%= (stats_total.averageTimeLast1000 / 1000).toFixed(2) %> µs</p>
+	<div class="container">
+		<h1>Timers Statistics</h1>
+		<p>Total Files: <%= statsTotal.totalFiles %>
+		</p>
 
-	<h2>Matching time</h2>
-	<p>Average Time per File: <%= (stats_match.averageTime / 1000).toFixed(2) %> µs</p>
-	<p>Average Time per Last 100 Files: <%= (stats_match.averageTimeLast100 / 1000).toFixed(2) %> µs</p>
-	<p>Average Time per Last 1000 Files: <%= (stats_match.averageTimeLast1000 / 1000).toFixed(2) %> µs</p>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					<th>Total time</th>
+					<th>Matching time</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Average Time per File</td>
+					<td>
+						<%= (statsTotal.averageTime / 1000).toFixed(2) %> µs
+					</td>
+					<td>
+						<%= (statsMatch.averageTime / 1000).toFixed(2) %> µs
+					</td>
+				</tr>
+				<tr>
+					<td>Average Time per Last 100 Files</td>
+					<td>
+						<%= (statsTotal.averageTimeLast100 / 1000).toFixed(2) %> µs
+					</td>
+					<td>
+						<%= (statsMatch.averageTimeLast100 / 1000).toFixed(2) %> µs
+					</td>
+				</tr>
+				<tr>
+					<td>Average Time per Last 1000 Files</td>
+					<td>
+						<%= (statsTotal.averageTimeLast1000 / 1000).toFixed(2) %> µs
+					</td>
+					<td>
+						<%= (statsMatch.averageTimeLast1000 / 1000).toFixed(2) %> µs
+					</td>
+				</tr>
+			</tbody>
+		</table>
 
-	<div style="width: 1000px; height:600px">
-		<canvas id="barChart"></canvas>
-	</div>
+		<p>Note: The time values of each file are normalized by dividing the time values by the number of rows</p>
 
-	<div style="width: 1000px; height:600px">
-		<canvas id="lineChart"></canvas>
+		<h2>Charts</h2>
+		<div class="chart-container">
+			<canvas id="barChart"></canvas>
+			<p>Bar chart showing the average total and match times per 1/100/1000 files</p>
+		</div>
+
+		<div class="chart-container">
+			<canvas id="lineChart"></canvas>
+			<p>Line chart showing the average total and match times of the last 100 files</p>
+		</div>
 	</div>
 
 	<%-'<script>'%>
-		let stats_total = <%-JSON.stringify(stats_total)%>;
-		let stats_match = <%-JSON.stringify(stats_match)%>;
+		let statsTotal = <%-JSON.stringify(statsTotal)%>;
+		let statsMatch = <%-JSON.stringify(statsMatch)%>;
 	<%-'</script>'%>
 
 	<script>
-		const canvas = document.getElementById('barChart')
-		const ctx = canvas.getContext('2d');
-		const barChart = new Chart(ctx, {
+		const barCanvas = document.getElementById('barChart');
+		const barCtx = barCanvas.getContext('2d');
+		const barChart = new Chart(barCtx, {
 			type: 'bar',
 			data: {
 				labels: ['Average Time per File', 'Average Time per Last 100 Files', 'Average Time per Last 1000 Files'],
 				datasets: [{
 					label: 'Total processing time (ms)',
 					data: [
-						(stats_total.averageTime / 1000).toFixed(2),
-						(stats_total.averageTimeLast100 / 1000).toFixed(2),
-						(stats_total.averageTimeLast1000 / 1000).toFixed(2)
+						(statsTotal.averageTime / 1000).toFixed(2),
+						(statsTotal.averageTimeLast100 / 1000).toFixed(2),
+						(statsTotal.averageTimeLast1000 / 1000).toFixed(2)
 					],
 					backgroundColor: 'rgba(75, 192, 192, 0.2)',
 					borderColor: 'rgba(75, 192, 192, 1)',
@@ -53,9 +156,9 @@
 				}, {
 					label: 'Matching time (ms)',
 					data: [
-						(stats_match.averageTime / 1000).toFixed(2),
-						(stats_match.averageTimeLast100 / 1000).toFixed(2),
-						(stats_match.averageTimeLast1000 / 1000).toFixed(2)
+						(statsMatch.averageTime / 1000).toFixed(2),
+						(statsMatch.averageTimeLast100 / 1000).toFixed(2),
+						(statsMatch.averageTimeLast1000 / 1000).toFixed(2)
 					],
 					backgroundColor: 'rgba(153, 102, 255, 0.2)',
 					borderColor: 'rgba(153, 102, 255, 1)',
@@ -63,7 +166,6 @@
 				}]
 			},
 			options: {
-				responsive: true,
 				scales: {
 					y: {
 						beginAtZero: true
@@ -77,17 +179,16 @@
 		const lineChart = new Chart(lineCtx, {
 			type: 'line',
 			data: {
-				labels: Array.from({ length: stats_total.last100.length }, (_, i) => i + 1),
+				labels: Array.from({ length: statsTotal.last100.length }, (_, i) => i + 1),
 				datasets: [{
 					label: 'Total Time (ms)',
-					data: stats_total.last100.map(time => (time / 1000).toFixed(2)),
-					
+					data: statsTotal.last100.map(time => (time / 1000).toFixed(2)),
 					borderColor: 'rgba(75, 192, 192, 1)',
 					backgroundColor: 'rgba(75, 192, 192, 0.2)',
 					fill: false
 				}, {
 					label: 'Match Time (ms)',
-					data: stats_match.last100.map(time => (time / 1000).toFixed(2)),
+					data: statsMatch.last100.map(time => (time / 1000).toFixed(2)),
 					borderColor: 'rgba(153, 102, 255, 1)',
 					backgroundColor: 'rgba(153, 102, 255, 0.2)',
 					fill: false
