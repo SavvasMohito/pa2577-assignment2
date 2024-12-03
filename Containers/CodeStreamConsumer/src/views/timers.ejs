@@ -12,13 +12,13 @@
 	</p>
 	<h2>Total processing time</h2>
 	<p>Average Time per File: <%= (stats_total.averageTime / 1000).toFixed(2) %> µs</p>
-	<p>Average Time per Last 100 Files: <%= (stats_total.averageTimeLast100 / 1000).toFixed(2) %> ms</p>
-	<p>Average Time per Last 1000 Files: <%= (stats_total.averageTimeLast1000 / 1000).toFixed(2) %> ms</p>
+	<p>Average Time per Last 100 Files: <%= (stats_total.averageTimeLast100 / 1000).toFixed(2) %> µs</p>
+	<p>Average Time per Last 1000 Files: <%= (stats_total.averageTimeLast1000 / 1000).toFixed(2) %> µs</p>
 
 	<h2>Matching time</h2>
 	<p>Average Time per File: <%= (stats_match.averageTime / 1000).toFixed(2) %> µs</p>
-	<p>Average Time per Last 100 Files: <%= (stats_match.averageTimeLast100 / 1000).toFixed(2) %> ms</p>
-	<p>Average Time per Last 1000 Files: <%= (stats_match.averageTimeLast1000 / 1000).toFixed(2) %> ms</p>
+	<p>Average Time per Last 100 Files: <%= (stats_match.averageTimeLast100 / 1000).toFixed(2) %> µs</p>
+	<p>Average Time per Last 1000 Files: <%= (stats_match.averageTimeLast1000 / 1000).toFixed(2) %> µs</p>
 
 	<div style="width: 1000px; height:600px">
 		<canvas id="barChart"></canvas>
