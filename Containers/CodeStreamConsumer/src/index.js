@@ -17,18 +17,23 @@ function calculateStatistics(timers) {
   const totalFiles = timers.length;
   const last100Files = timers.slice(-100);
   const last1000Files = timers.slice(-1000);
+  const averageTimePer100 = [];
 
   const averageTime = Number(timers.reduce((acc, timer) => acc + timer)) / totalFiles || 0;
   const averageTimeLast100 = Number(last100Files.reduce((acc, timer) => acc + timer)) / last100Files.length || 0;
   const averageTimeLast1000 = Number(last1000Files.reduce((acc, timer) => acc + timer)) / last1000Files.length || 0;
-  const last100 = timers.slice(-100).map((timer) => Number(timer));
+  for (let i = 0; i < timers.length - 99; i += 100) {
+    const chunk = timers.slice(i, i + 100);
+    const avg = chunk.reduce((acc, timer) => acc + timer, 0) / chunk.length;
+    averageTimePer100.push(avg);
+  }
 
   return {
     averageTime,
+    averageTimePer100,
     averageTimeLast100,
     averageTimeLast1000,
     totalFiles,
-    last100,
   };
 }
 
