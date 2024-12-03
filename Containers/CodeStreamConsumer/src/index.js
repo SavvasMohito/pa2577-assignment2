@@ -10,17 +10,17 @@ const CloneDetector = require("./CloneDetector");
 const CloneStorage = require("./CloneStorage");
 const FileStorage = require("./FileStorage");
 
-let timers_total = [];
-let timers_match = [];
+let timersTotal = [];
+let timersMatch = [];
 
 function calculateStatistics(timers) {
   const totalFiles = timers.length;
   const last100Files = timers.slice(-100);
   const last1000Files = timers.slice(-1000);
 
-  const averageTime = Number(timers.reduce((acc, timer) => acc + timer, 0n)) / totalFiles || 0;
-  const averageTimeLast100 = Number(last100Files.reduce((acc, timer) => acc + timer, 0n)) / last100Files.length || 0;
-  const averageTimeLast1000 = Number(last1000Files.reduce((acc, timer) => acc + timer, 0n)) / last1000Files.length || 0;
+  const averageTime = Number(timers.reduce((acc, timer) => acc + timer)) / totalFiles || 0;
+  const averageTimeLast100 = Number(last100Files.reduce((acc, timer) => acc + timer)) / last100Files.length || 0;
+  const averageTimeLast1000 = Number(last1000Files.reduce((acc, timer) => acc + timer)) / last1000Files.length || 0;
   const last100 = timers.slice(-100).map((timer) => Number(timer));
 
   return {
@@ -50,9 +50,9 @@ app.get("/", viewClones);
 
 // Add /timers route to display statistics
 app.get("/timers", (req, res) => {
-  const stats_total = calculateStatistics(timers_total);
-  const stats_match = calculateStatistics(timers_match);
-  res.render("timers", { stats_total, stats_match });
+  const statsTotal = calculateStatistics(timersTotal);
+  const statsMatch = calculateStatistics(timersMatch);
+  res.render("timers", { statsTotal, statsMatch });
 });
 
 // Set the view engine to EJS
@@ -157,29 +157,39 @@ function maybePrintStatistics(file, cloneDetector, cloneStore) {
   return file;
 }
 
+function normalizeTime(totalTime, numberOfRows) {
+  if (numberOfRows === 0) {
+    return 0; // Avoid division by zero
+  }
+  return Number(totalTime) / numberOfRows;
+}
+
 // Processing of the file
 // --------------------
 function processFile(filename, contents) {
   let cd = new CloneDetector();
   let cloneStore = CloneStorage.getInstance();
+  let fileLines = 0;
 
   return (
     Promise.resolve({ name: filename, contents: contents })
       //.then( PASS( (file) => console.log('Processing file:', file.name) ))
       .then((file) => Timer.startTimer(file, "total"))
       .then((file) => cd.preprocess(file))
-      .then((file) => cd.transform(file))
-
+      .then((file) => {
+        cd.transform(file);
+        fileLines = file.lines.length;
+        return file;
+      })
       .then((file) => Timer.startTimer(file, "match"))
       .then((file) => cd.matchDetect(file))
       .then((file) => cloneStore.storeClones(file))
       .then((file) => Timer.endTimer(file, "match"))
-
       .then((file) => cd.storeFile(file))
       .then((file) => {
         const timer = Timer.endTimer(file, "total");
-        timers_total.push(timer.timers["total"]);
-        timers_match.push(timer.timers["match"]);
+        timersTotal.push(normalizeTime(timer.timers["total"], fileLines));
+        timersMatch.push(normalizeTime(timer.timers["match"], fileLines));
         return file;
       })
       .then(PASS((file) => (lastFile = file)))
