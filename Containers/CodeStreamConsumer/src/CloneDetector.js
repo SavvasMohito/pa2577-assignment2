@@ -102,7 +102,17 @@ class CloneDetector {
       .map((chunk) => {
         return compareFile.chunks
           .filter((compareChunk) => this.#chunkMatch(chunk, compareChunk))
-          .map((matchingChunk) => new Clone(chunk, matchingChunk));
+          .map((matchingChunk) => {
+            try {
+              return new Clone(file.name, compareFile.name, chunk, matchingChunk);
+            } catch (error) {
+              console.error("Error creating Clone:", error);
+              console.error("chunk:", chunk);
+              console.error("matchingChunk:", matchingChunk);
+              return null;
+            }
+          })
+          .filter((clone) => clone !== null);
       })
       .flat();
 
