@@ -1,0 +1,12 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.126.0/containers/python-3
+{
+    "name": "monitor tool dev",
+    "dockerComposeFile": [
+        "../../../all-at-once.yaml",
+        "../../../all-at-once-dev.yaml"
+    ],
+    "service": "monitor-tool",
+    "workspaceFolder": "/app"
+    // Use 'postCreateCommand' to run commands after the container is created
+  }

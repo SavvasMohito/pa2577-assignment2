@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "christian-kohler.npm-intellisense",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens",
+    "esbenp.prettier-vscode",
+    "svelte.svelte-vscode",
+    "mhutchie.git-graph",
+    "YoavBls.pretty-ts-errors",
+    "oderwat.indent-rainbow",
+    "GitHub.copilot",
+    "Selemondev.vscode-shadcn-svelte"
+  ],
+}

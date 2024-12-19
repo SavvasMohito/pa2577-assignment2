@@ -1,0 +1,12 @@
+services:
+  monitor-tool:
+    build:
+      dockerfile: .devcontainer/Dockerfile.dev
+    ports:
+      # Exposes application port.
+    - 5100:5173
+    - 4100:4173
+    volumes:
+      # Adds current directory as volume.
+    - ./Containers/MonitorTool:/app
+    command: sleep infinity
