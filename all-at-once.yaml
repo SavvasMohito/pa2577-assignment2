@@ -35,6 +35,7 @@ services:
     ports:
       - 3000:3000
     environment:
+      DBHOST: dbstorage
       ORIGIN: http://localhost:3000
     depends_on:
       - dbstorage
