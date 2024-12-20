@@ -1,11 +1,13 @@
 import { getDB } from '$lib/db/mongo';
+import { type Document } from 'mongodb';
+
 const db = getDB();
 
 export async function getCollection(
 	collection_name: string,
 	skip: number,
 	limit: number
-): Promise<JSON> {
+): Promise<Document[]> {
 	// get repositories from MongoDB with skip and limit
 	const data = await db
 		.collection(collection_name)
@@ -19,7 +21,10 @@ export async function getCollection(
 	return data;
 }
 
-export async function searchCollection(collection_name: string, search: string): Promise<JSON> {
+export async function searchCollection(
+	collection_name: string,
+	search: string
+): Promise<Document[]> {
 	// get repositories from MongoDB with search query and regex options
 	const data = await db
 		.collection(collection_name)
