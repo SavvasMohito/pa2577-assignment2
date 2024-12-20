@@ -1,7 +1,7 @@
-import { DBHOST } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { type Db, MongoClient } from 'mongodb';
 
-const client = new MongoClient('mongodb://dbstorage');
+const client = new MongoClient(env.DBHOST || "");
 
 // connect to the database
 export async function connect(): Promise<void> {
@@ -15,5 +15,5 @@ export async function disconnect(): Promise<void> {
 
 // get the database
 export function getDB(): Db {
-	return client.db('cloneDetector');
+	return client.db(env.DBNAME);
 }
