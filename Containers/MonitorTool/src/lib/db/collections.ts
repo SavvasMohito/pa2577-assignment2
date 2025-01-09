@@ -43,6 +43,14 @@ export async function getCollectionStats(collectionName: string): Promise<Proces
 	let startTimeUpdate = null;
 	if (currentStatusUpdates.length > 0) {
 		switch (collectionName) {
+			case 'files': {
+				startTimeUpdate = currentStatusUpdates.find((update: Document) =>
+					(update as CollectionUpdates).message
+						.toString()
+						.startsWith('Reading and Processing files')
+				);
+				break;
+			}
 			case 'chunks': {
 				startTimeUpdate = currentStatusUpdates.find((update: Document) =>
 					(update as CollectionUpdates).message.toString().startsWith('Storing chunks')
