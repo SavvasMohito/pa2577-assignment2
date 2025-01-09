@@ -8,9 +8,9 @@
 (def dbname "cloneDetector")
 (def partition-size 100)
 (def hostname (or (System/getenv "DBHOST") DEFAULT-DBHOST))
+;; START OF MY MODIFICATIONS
 (def collnames ["files"  "chunks" "candidates" "clones" "statusUpdates"])
 
-;; START OF MY MODIFICATIONS
 (defn addUpdate! [timestamp message]
   (let [conn (mg/connect {:host hostname})
         db (mg/get-db conn dbname)
