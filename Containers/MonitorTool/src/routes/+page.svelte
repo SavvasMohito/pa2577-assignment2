@@ -7,12 +7,8 @@
 		message: string;
 	};
 
-	type CollectionCounts = {
-		[key: string]: number;
-	};
-
 	let statusUpdates: StatusUpdate[] = $state([]);
-	let collectionCounts: Map<string, CollectionStats[]> = $state(new Map());
+	let collectionCounts: Map<string, CollectionStats> = $state(new Map());
 
 	async function fetchData() {
 		fetch('/api/status')
@@ -38,7 +34,7 @@
 	});
 </script>
 
-<div class="grid w-full grid-cols-3 gap-2">
+<div class="grid w-full grid-cols-2 gap-2">
 	<div class="flex flex-1 flex-col">
 		<h2 class="text-xl font-semibold">Collection Counts</h2>
 		<div class="flex flex-1 flex-col rounded-lg border bg-gray-100 p-4">
@@ -46,15 +42,30 @@
 				<span>Loading...</span>
 			{:else}
 				{#each Object.entries(collectionCounts) as [key, value]}
-					<span>
-						{key.charAt(0).toUpperCase() + key.slice(1)}: {value.count}
-					</span>
+					<div class="mb-4">
+						<h4 class="font-semibold">
+							{key.charAt(0).toUpperCase() + key.slice(1)}
+						</h4>
+						<ul>
+							<li>Count: {value.count}</li>
+							{#if value.count > 0}
+								<li>
+									Items per second: {value.metrics.processingRate &&
+										value.metrics.processingRate.toFixed(2)}
+								</li>
+								<li>
+									Item processing time: {value.metrics.timePerDocument &&
+										value.metrics.timePerDocument.toFixed(4)} ms
+								</li>
+							{/if}
+						</ul>
+					</div>
 				{/each}
 			{/if}
 		</div>
 	</div>
 
-	<div class="col-span-2 flex flex-1 flex-col">
+	<div class="flex flex-1 flex-col">
 		<h2 class="text-xl font-semibold">Logs</h2>
 		<div class="flex flex-1 flex-col rounded-lg border bg-gray-100 p-4">
 			{#if statusUpdates.length === 0}
@@ -62,7 +73,7 @@
 			{:else}
 				{#each statusUpdates as update}
 					<span>
-						{new Date(update.timestamp).toISOString().slice(0, 19).replace('T', ' ')}: {update.message}
+						{new Date(update.timestamp).toLocaleString('en-GB')}: {update.message}
 					</span>
 				{/each}
 			{/if}
