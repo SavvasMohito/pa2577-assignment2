@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
+	import { type CollectionStats } from '$lib/db/collections';
 
 	type StatusUpdate = {
 		timestamp: string;
@@ -11,7 +12,7 @@
 	};
 
 	let statusUpdates: StatusUpdate[] = $state([]);
-	let collectionCounts: CollectionCounts = $state({});
+	let collectionCounts: Map<string, CollectionStats[]> = $state(new Map());
 
 	async function fetchData() {
 		fetch('/api/status')
@@ -19,10 +20,10 @@
 			.then((data) => {
 				statusUpdates = data.statusUpdates;
 			});
-		fetch('/api/counts')
+		fetch('/api/stats')
 			.then((res) => res.json())
 			.then((data) => {
-				collectionCounts = data.collectionCounts;
+				collectionCounts = data.collectionStats;
 			});
 	}
 
@@ -44,9 +45,9 @@
 			{#if Object.keys(collectionCounts).length === 0}
 				<span>Loading...</span>
 			{:else}
-				{#each Object.entries(collectionCounts) as [key, count]}
+				{#each Object.entries(collectionCounts) as [key, value]}
 					<span>
-						{key.charAt(0).toUpperCase() + key.slice(1)}: {count}
+						{key.charAt(0).toUpperCase() + key.slice(1)}: {value.count}
 					</span>
 				{/each}
 			{/if}
