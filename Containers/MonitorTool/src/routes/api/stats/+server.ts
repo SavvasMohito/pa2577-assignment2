@@ -1,5 +1,5 @@
 import {
-	getCollectionCountWithStats,
+	getCollectionStats,
 	getCollectionCount,
 	type ProcessingMetrics
 } from '$lib/db/collections';
@@ -10,7 +10,7 @@ export const GET: RequestHandler = async () => {
 
 	for (const collectionName of ['files', 'chunks', 'candidates', 'clones']) {
 		const count = await getCollectionCount(collectionName);
-		const metrics = await getCollectionCountWithStats(collectionName);
+		const metrics = await getCollectionStats(collectionName);
 		collectionStats[collectionName] = { count, metrics };
 	}
 	return new Response(JSON.stringify({ collectionStats }), {
