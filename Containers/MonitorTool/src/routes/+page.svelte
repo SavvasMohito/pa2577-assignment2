@@ -21,6 +21,10 @@
 			.then((data) => {
 				collectionCounts = data.collectionStats;
 			});
+
+		if (statusUpdates.length > 0 && statusUpdates[statusUpdates.length - 1].message === 'Summary') {
+			clearInterval(interval);
+		}
 	}
 
 	onMount(async () => {
