@@ -9,7 +9,7 @@
 (def partition-size 100)
 (def hostname (or (System/getenv "DBHOST") DEFAULT-DBHOST))
 ;; START OF MY MODIFICATIONS
-(def collnames ["files"  "chunks" "candidates" "clones" "statusUpdates"])
+(def collnames ["files"  "chunks" "candidates" "clones" "statusUpdates" "statistics"])
 
 (defn addUpdate! [timestamp message]
   (let [conn (mg/connect {:host hostname})
