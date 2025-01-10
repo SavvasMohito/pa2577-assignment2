@@ -1,10 +1,9 @@
 <script lang="ts">
 	import type { ProcessingMetrics } from '$lib/db/collections';
 	import { onDestroy, onMount } from 'svelte';
-	import { Chart, Svg, Axis, Spline, Text, Tooltip, Highlight } from 'layerchart';
-	import { scaleTime, scaleOrdinal } from 'd3-scale';
+	import { Chart, Svg, Axis, Area, Highlight } from 'layerchart';
+	import { scaleTime } from 'd3-scale';
 	import { formatDate, PeriodType } from '@layerstack/utils';
-	import { format } from 'date-fns';
 	import { flatGroup } from 'd3-array';
 
 	type StatusUpdate = {
@@ -23,10 +22,10 @@
 	};
 
 	const keyColors = {
-		files: 'red',
-		chunks: 'green',
-		candidates: 'blue',
-		clones: 'purple'
+		files: { fill: 'fill-red-500/30', stroke: 'stroke-2 stroke-red-500' },
+		chunks: { fill: 'fill-green-500/30', stroke: 'stroke-2 stroke-green-500' },
+		candidates: { fill: 'fill-blue-500/30', stroke: 'stroke-2 stroke-blue-500' },
+		clones: { fill: 'fill-purple-500/30', stroke: 'stroke-2 stroke-purple-500' }
 	};
 
 	let statusUpdates: StatusUpdate[] = $state([]);
@@ -39,8 +38,10 @@
 		itemsPerSecond: number;
 		itemProcessingTime: number;
 	}[] = $state([]);
+	type KeyType = 'files' | 'chunks' | 'candidates' | 'clones';
+
 	let dataByKey: Map<
-		string,
+		KeyType,
 		{ timestamp: number; count: number; itemsPerSecond: number; itemProcessingTime: number }[]
 	> = $state(new Map());
 
@@ -65,7 +66,7 @@
 						};
 					});
 				});
-				dataByKey = flatGroup(allStatisticsFlat, (d) => d.key);
+				dataByKey = new Map(flatGroup(allStatisticsFlat, (d) => d.key as KeyType));
 				console.log(dataByKey);
 
 				collectionStats = data.allStatistics[0].stats;
@@ -88,51 +89,68 @@
 	});
 </script>
 
-<div class="h-[300px] rounded border p-4">
-	<Chart
-		data={allStatisticsFlat}
-		x="timestamp"
-		xScale={scaleTime()}
-		y="itemsPerSecond"
-		yDomain={[0, null]}
-		yNice
-		c="key"
-		cScale={scaleOrdinal()}
-		cDomain={Object.keys(keyColors)}
-		cRange={Object.values(keyColors)}
-		padding={{ left: 16, bottom: 24, right: 48 }}
-		tooltip={{ mode: 'voronoi' }}
-		let:cScale
-	>
-		<Svg>
-			<Axis placement="left" grid rule />
-			<Axis
-				placement="bottom"
-				format={(d) => formatDate(d, PeriodType.Day, { variant: 'short' })}
-				rule
-			/>
-			{#each dataByKey as [key, data]}
-				{@const color = cScale?.(key)}
-				<Spline {data} class="stroke-2" stroke={color}>
-					<svelte:fragment slot="end">
-						<circle r={4} fill={color} />
-						<Text value={key} verticalAnchor="middle" dx={6} dy={-2} class="text-xs" fill={color} />
-					</svelte:fragment>
-				</Spline>
-			{/each}
-			<Highlight points lines />
-		</Svg>
+{#if dataByKey.size === 0}
+	<div>Loading charts...</div>
+{:else}
+	<div class="flex w-full flex-col gap-2">
+		{#each dataByKey as [key, sf]}
+			<div class="flex flex-col gap-1">
+				<h2 class="text-xl font-semibold">{key}</h2>
+				<div class="grid grid-cols-2 gap-2">
+					<div class="h-[300px] w-full rounded border p-4">
+						<h4>Items per second</h4>
+						<Chart
+							data={sf}
+							x="timestamp"
+							xScale={scaleTime()}
+							y="itemsPerSecond"
+							yDomain={[0, null]}
+							yNice
+							padding={{ left: 16, bottom: 24 }}
+						>
+							<Svg>
+								<Axis placement="left" grid rule />
+								<Axis
+									placement="bottom"
+									format={(d) => formatDate(d, PeriodType.DayTime, { variant: 'short' })}
+									rule
+								/>
+								<Area line={{ class: keyColors[key].stroke }} class={keyColors[key].fill} />
+								<Highlight points lines />
+							</Svg>
+						</Chart>
+					</div>
+					<div class="h-[300px] w-full rounded border p-4">
+						<h4>Average item processing time (ms)</h4>
+						<Chart
+							data={sf}
+							x="timestamp"
+							xScale={scaleTime()}
+							y="itemProcessingTime"
+							yDomain={[0, null]}
+							yNice
+							padding={{ left: 16, bottom: 24 }}
+							tooltip={{ mode: 'bisect-x' }}
+						>
+							<Svg>
+								<Axis placement="left" grid rule />
+								<Axis
+									placement="bottom"
+									format={(d) => formatDate(d, PeriodType.DayTime, { variant: 'short' })}
+									rule
+								/>
+								<Area line={{ class: keyColors[key].stroke }} class={keyColors[key].fill} />
+								<Highlight points lines />
+							</Svg>
+						</Chart>
+					</div>
+				</div>
+			</div>
+		{/each}
+	</div>
+{/if}
 
-		<Tooltip.Root let:data>
-			<Tooltip.Header>{format(data.date, 'eee, MMMM do')}</Tooltip.Header>
-			<Tooltip.List>
-				<Tooltip.Item label={data.fruit} value={data.value} />
-			</Tooltip.List>
-		</Tooltip.Root>
-	</Chart>
-</div>
-
-<div class="grid w-full grid-cols-5 gap-2">
+<div class="mt-4 grid w-full grid-cols-5 gap-2">
 	<div class="col-span-3 flex flex-1 flex-col gap-1">
 		<h2 class="text-xl font-semibold">Last 100 statistics</h2>
 		<div class="flex flex-1 flex-col rounded-lg border bg-gray-100 p-4">

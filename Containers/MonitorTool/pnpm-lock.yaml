@@ -42,6 +42,9 @@ importers:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^5.0.0
         version: 5.0.3(svelte@5.14.5)(vite@6.0.4(jiti@1.21.7)(yaml@2.6.1))
+      '@types/d3-array':
+        specifier: ^3.2.1
+        version: 3.2.1
       '@types/d3-scale':
         specifier: ^4.0.8
         version: 4.0.8
@@ -544,6 +547,9 @@ packages:
 
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
+
+  '@types/d3-array@3.2.1':
+    resolution: {integrity: sha512-Y2Jn2idRrLzUfAKV2LyRImR+y4oa2AntrgID95SHJxuMUrkNXmanDSed71sRNZysveJVt1hLLemQZIady0FpEg==}
 
   '@types/d3-scale@4.0.8':
     resolution: {integrity: sha512-gkK1VVTr5iNiYJ7vWDI+yUFFlszhNMtVeneJ6lUTKPjprsvLLI9/tgEGiXJOnlINJA8FyA88gfnQsHbybVZrYQ==}
@@ -2247,6 +2253,8 @@ snapshots:
       tailwindcss: 3.4.17
 
   '@types/cookie@0.6.0': {}
+
+  '@types/d3-array@3.2.1': {}
 
   '@types/d3-scale@4.0.8':
     dependencies:
