@@ -51,40 +51,31 @@
 	});
 </script>
 
-<div class="grid w-full grid-cols-2 gap-2">
-	<div class="flex flex-1 flex-col">
-		<h2 class="text-xl font-semibold">Collection Counts</h2>
+<div class="grid w-full grid-cols-5 gap-2">
+	<div class="col-span-3 flex flex-1 flex-col gap-1">
+		<h2 class="text-xl font-semibold">Last 100 statistics</h2>
 		<div class="flex flex-1 flex-col rounded-lg border bg-gray-100 p-4">
-			{#if Object.keys(collectionStats).length === 0}
+			{#if allStatistics.length === 0}
 				<span>Loading...</span>
 			{:else}
-				{#each Object.entries(collectionStats) as [key, value]}
-					<div class="mb-4">
-						<h4 class="font-semibold">
-							{key.charAt(0).toUpperCase() + key.slice(1)}
-						</h4>
-						<ul>
-							<li>Count: {value.count}</li>
-							{#if value.count > 0}
-								<li>
-									Items per second: {value.metrics.processingRate &&
-										value.metrics.processingRate.toFixed(2)}
-								</li>
-								<li>
-									Item processing time: {value.metrics.timePerDocument &&
-										value.metrics.timePerDocument.toFixed(4)} ms
-								</li>
-							{/if}
-						</ul>
-					</div>
+				{#each allStatistics.slice(0, 100) as statistics}
+					<span>
+						{new Date(statistics.timestamp).toLocaleString('en-GB')}: {#each Object.entries(statistics.stats) as [key, value]}
+							<div>
+								--{key}: count: {value.count} / items per second: {value.metrics.processingRate &&
+									value.metrics.processingRate.toFixed(2)} / item processing time: {value.metrics
+									.timePerDocument && value.metrics.timePerDocument.toFixed(4)} ms
+							</div>
+						{/each}
+					</span>
 				{/each}
 			{/if}
 		</div>
 	</div>
 
-	<div class="flex flex-1 flex-col">
-		<h2 class="text-xl font-semibold">Logs</h2>
-		<div class="flex flex-1 flex-col rounded-lg border bg-gray-100 p-4">
+	<div class="col-span-2 flex flex-1 flex-col gap-1">
+		<h2 class="text-xl font-semibold">Status Updates</h2>
+		<div class="flex flex-col rounded-lg border bg-gray-100 p-4">
 			{#if statusUpdates.length === 0}
 				<span>Loading...</span>
 			{:else}
@@ -95,26 +86,5 @@
 				{/each}
 			{/if}
 		</div>
-	</div>
-</div>
-
-<div class="flex flex-1 flex-col">
-	<h2 class="text-xl font-semibold">Last 100 statistics</h2>
-	<div class="flex flex-1 flex-col rounded-lg border bg-gray-100 p-4">
-		{#if allStatistics.length === 0}
-			<span>Loading...</span>
-		{:else}
-			{#each allStatistics.slice(0, 100) as statistics}
-				<span>
-					{new Date(statistics.timestamp).toLocaleString('en-GB')}: {#each Object.entries(statistics.stats) as [key, value]}
-						<div>
-							--{key}: count: {value.count} / items per second: {value.metrics.processingRate &&
-								value.metrics.processingRate.toFixed(2)} / item processing time: {value.metrics
-								.timePerDocument && value.metrics.timePerDocument.toFixed(4)} ms
-						</div>
-					{/each}
-				</span>
-			{/each}
-		{/if}
 	</div>
 </div>
