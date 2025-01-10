@@ -51,29 +51,28 @@
 			.then((data) => {
 				statusUpdates = data.statusUpdates;
 			});
-		fetch('/api/stats')
-			.then((res) => res.json())
-			.then((data) => {
-				allStatistics = data.allStatistics;
-				allStatisticsFlat = allStatistics.flatMap((stat) => {
-					return Object.entries(stat.stats).map(([key, value]) => {
-						return {
-							timestamp: stat.timestamp,
-							key,
-							count: value.count,
-							itemsPerSecond: value.metrics.processingRate,
-							itemProcessingTime: value.metrics.timePerDocument
-						};
-					});
-				});
-				dataByKey = new Map(flatGroup(allStatisticsFlat, (d) => d.key as KeyType));
-				console.log(dataByKey);
-
-				collectionStats = data.allStatistics[0].stats;
-			});
 
 		if (statusUpdates.length > 0 && statusUpdates[statusUpdates.length - 1].message === 'Summary') {
 			clearInterval(interval);
+		} else {
+			fetch('/api/stats')
+				.then((res) => res.json())
+				.then((data) => {
+					allStatistics = data.allStatistics;
+					allStatisticsFlat = allStatistics.flatMap((stat) => {
+						return Object.entries(stat.stats).map(([key, value]) => {
+							return {
+								timestamp: stat.timestamp,
+								key,
+								count: value.count,
+								itemsPerSecond: value.metrics.processingRate,
+								itemProcessingTime: value.metrics.timePerDocument
+							};
+						});
+					});
+					dataByKey = new Map(flatGroup(allStatisticsFlat, (d) => d.key as KeyType));
+					collectionStats = data.allStatistics[0].stats;
+				});
 		}
 	}
 
