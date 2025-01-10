@@ -1,14 +1,18 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { type CollectionStats } from '$lib/db/collections';
 
 	type StatusUpdate = {
 		timestamp: string;
 		message: string;
 	};
 
+	type CollectionStats = {
+		timestamp: number;
+		count: number;
+	};
+
 	let statusUpdates: StatusUpdate[] = $state([]);
-	let collectionCounts: Map<string, CollectionStats> = $state(new Map());
+	let collectionStats: Map<string, CollectionStats> = $state(new Map());
 
 	async function fetchData() {
 		fetch('/api/status')
@@ -19,7 +23,7 @@
 		fetch('/api/stats')
 			.then((res) => res.json())
 			.then((data) => {
-				collectionCounts = data.collectionStats;
+				collectionStats = data.collectionStats;
 			});
 
 		if (statusUpdates.length > 0 && statusUpdates[statusUpdates.length - 1].message === 'Summary') {
@@ -31,7 +35,8 @@
 		await fetchData();
 	});
 
-	const interval = setInterval(fetchData, 5000);
+	// Update data every 10 seconds
+	const interval = setInterval(fetchData, 10000);
 
 	onDestroy(() => {
 		interval && clearInterval(interval);
@@ -42,10 +47,10 @@
 	<div class="flex flex-1 flex-col">
 		<h2 class="text-xl font-semibold">Collection Counts</h2>
 		<div class="flex flex-1 flex-col rounded-lg border bg-gray-100 p-4">
-			{#if Object.keys(collectionCounts).length === 0}
+			{#if Object.keys(collectionStats).length === 0}
 				<span>Loading...</span>
 			{:else}
-				{#each Object.entries(collectionCounts) as [key, value]}
+				{#each Object.entries(collectionStats) as [key, value]}
 					<div class="mb-4">
 						<h4 class="font-semibold">
 							{key.charAt(0).toUpperCase() + key.slice(1)}
