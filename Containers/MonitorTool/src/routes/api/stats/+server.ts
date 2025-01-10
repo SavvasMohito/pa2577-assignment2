@@ -1,6 +1,7 @@
 import {
 	getCollectionStats,
 	getCollectionCount,
+	storeStats,
 	type ProcessingMetrics
 } from '$lib/db/collections';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -13,6 +14,9 @@ export const GET: RequestHandler = async () => {
 		const metrics = await getCollectionStats(collectionName);
 		collectionStats[collectionName] = { count, metrics };
 	}
+
+	storeStats(collectionStats);
+
 	return new Response(JSON.stringify({ collectionStats }), {
 		headers: { 'Content-Type': 'application/json' }
 	});

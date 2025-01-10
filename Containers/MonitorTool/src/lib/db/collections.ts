@@ -6,11 +6,6 @@ type CollectionUpdates = {
 	message: number;
 };
 
-export type CollectionStats = {
-	timestamp: number;
-	count: number;
-};
-
 export type ProcessingMetrics = {
 	processingRate: number; // documents per second
 	timePerDocument: number; // milliseconds per document
@@ -28,8 +23,15 @@ export async function getCollectionCount(collectionName: string): Promise<number
 	return await db.collection(collectionName).countDocuments({});
 }
 
+export function storeStats(stats: {
+	[key: string]: { count: number; metrics: ProcessingMetrics };
+}) {
+	// Store statistics in MongoDB
+	db.collection('statistics').insertOne({ timestamp: Date.now(), stats });
+}
+
 export async function getCollectionStats(collectionName: string): Promise<ProcessingMetrics> {
-	const currentCount = await getCollectionCount(collectionName);
+	let currentCount = await getCollectionCount(collectionName);
 
 	if (currentCount == 0) {
 		return {
@@ -73,11 +75,11 @@ export async function getCollectionStats(collectionName: string): Promise<Proces
 						currentCount = totalCandidtes - currentCount;
 					}
 				} else {
-				startTimeUpdate = currentStatusUpdates.find((update: Document) =>
-					(update as CollectionUpdates).message
-						.toString()
-						.startsWith('Identifying Clone Candidates')
-				);
+					startTimeUpdate = currentStatusUpdates.find((update: Document) =>
+						(update as CollectionUpdates).message
+							.toString()
+							.startsWith('Identifying Clone Candidates')
+					);
 				}
 
 				break;
@@ -103,6 +105,7 @@ export async function getCollectionStats(collectionName: string): Promise<Proces
 	}
 
 	let endTime;
+	// If the current status update is the last one, we use the current time as the end time
 	if (currentStatusUpdates.indexOf(startTimeUpdate) == currentStatusUpdates.length - 1) {
 		endTime = Date.now();
 	} else {
