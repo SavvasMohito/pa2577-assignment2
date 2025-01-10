@@ -58,11 +58,28 @@ export async function getCollectionStats(collectionName: string): Promise<Proces
 				break;
 			}
 			case 'candidates': {
+				// If the clone expansion process has started, we calculate the processing rate as the candidates are being analazyed and deleted
+				if (currentStatusUpdates.length > 4) {
+					startTimeUpdate = currentStatusUpdates.find((update: Document) =>
+						(update as CollectionUpdates).message.toString().startsWith('Expanding Candidates')
+					);
+
+					const foundCandidatesUpdate = currentStatusUpdates.find((update: Document) =>
+						(update as CollectionUpdates).message.toString().startsWith('Found')
+					);
+
+					if (foundCandidatesUpdate) {
+						const totalCandidtes = parseInt(foundCandidatesUpdate.message.toString().split(' ')[1]);
+						currentCount = totalCandidtes - currentCount;
+					}
+				} else {
 				startTimeUpdate = currentStatusUpdates.find((update: Document) =>
 					(update as CollectionUpdates).message
 						.toString()
 						.startsWith('Identifying Clone Candidates')
 				);
+				}
+
 				break;
 			}
 			case 'clones': {
