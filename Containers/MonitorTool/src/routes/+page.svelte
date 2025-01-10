@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ProcessingMetrics } from '$lib/db/collections';
 	import { onDestroy, onMount } from 'svelte';
 
 	type StatusUpdate = {
@@ -11,8 +12,14 @@
 		count: number;
 	};
 
+	type AllStatistics = {
+		timestamp: number;
+		stats: { [key: string]: { count: number; metrics: ProcessingMetrics } };
+	};
+
 	let statusUpdates: StatusUpdate[] = $state([]);
 	let collectionStats: Map<string, CollectionStats> = $state(new Map());
+	let allStatistics: AllStatistics[] = $state([]);
 
 	async function fetchData() {
 		fetch('/api/status')
@@ -23,7 +30,8 @@
 		fetch('/api/stats')
 			.then((res) => res.json())
 			.then((data) => {
-				collectionStats = data.collectionStats;
+				allStatistics = data.allStatistics;
+				collectionStats = data.allStatistics[0].stats;
 			});
 
 		if (statusUpdates.length > 0 && statusUpdates[statusUpdates.length - 1].message === 'Summary') {
@@ -87,5 +95,26 @@
 				{/each}
 			{/if}
 		</div>
+	</div>
+</div>
+
+<div class="flex flex-1 flex-col">
+	<h2 class="text-xl font-semibold">Last 100 statistics</h2>
+	<div class="flex flex-1 flex-col rounded-lg border bg-gray-100 p-4">
+		{#if allStatistics.length === 0}
+			<span>Loading...</span>
+		{:else}
+			{#each allStatistics.slice(0, 100) as statistics}
+				<span>
+					{new Date(statistics.timestamp).toLocaleString('en-GB')}: {#each Object.entries(statistics.stats) as [key, value]}
+						<div>
+							--{key}: count: {value.count} / items per second: {value.metrics.processingRate &&
+								value.metrics.processingRate.toFixed(2)} / item processing time: {value.metrics
+								.timePerDocument && value.metrics.timePerDocument.toFixed(4)} ms
+						</div>
+					{/each}
+				</span>
+			{/each}
+		{/if}
 	</div>
 </div>

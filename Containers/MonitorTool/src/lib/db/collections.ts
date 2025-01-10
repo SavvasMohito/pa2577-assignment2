@@ -18,6 +18,15 @@ export async function getAllStatusUpdates(): Promise<Document[]> {
 	return await db.collection('statusUpdates').find({}).project({ _id: 0 }).toArray();
 }
 
+export async function getAllStatistics(): Promise<Document[]> {
+	return await db
+		.collection('statistics')
+		.find({})
+		.sort('timestamp', -1)
+		.project({ _id: 0 })
+		.toArray();
+}
+
 export async function getCollectionCount(collectionName: string): Promise<number> {
 	// get the count of the requested collection from MongoDB
 	return await db.collection(collectionName).countDocuments({});
@@ -30,7 +39,7 @@ export function storeStats(stats: {
 	db.collection('statistics').insertOne({ timestamp: Date.now(), stats });
 }
 
-export async function getCollectionStats(collectionName: string): Promise<ProcessingMetrics> {
+export async function calculateStatistics(collectionName: string): Promise<ProcessingMetrics> {
 	let currentCount = await getCollectionCount(collectionName);
 
 	if (currentCount == 0) {
